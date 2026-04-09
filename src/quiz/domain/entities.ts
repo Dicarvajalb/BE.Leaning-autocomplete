@@ -123,6 +123,7 @@ export interface QuizSessionParticipantResult {
 export interface QuizSessionAnswerSubmissionResult {
   session: QuizSessionDetail;
   comparison: QuizSessionQuestionComparison;
+  submittedAnswer: QuizSessionAnswerComparison | null;
 }
 
 export interface QuizSessionResult {
@@ -138,6 +139,7 @@ export interface QuizSessionUpdateEvent {
 export interface QuizSessionAnswerEvent {
   session: QuizSessionDetail;
   comparison: QuizSessionQuestionComparison;
+  submittedAnswer: QuizSessionAnswerComparison | null;
 }
 
 export interface QuizSessionResultEvent {

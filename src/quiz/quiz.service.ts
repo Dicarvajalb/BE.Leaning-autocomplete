@@ -204,7 +204,7 @@ export class QuizService {
 
     const [total, items] = await this.prisma.$transaction([
       this.prisma.quiz.count({ where }),
-        this.prisma.quiz.findMany({
+      this.prisma.quiz.findMany({
         where,
         ...quizSearchArgs,
         orderBy: [
@@ -701,9 +701,10 @@ export class QuizService {
         }
 
         const canonicalOrder = this.getCanonicalOrder(currentQuestion);
-        const selectedOrder = input.selectedOrder.map((word) => word.trim());
-
-        this.validateSubmittedOrder(selectedOrder, canonicalOrder);
+        const selectedOrder = this.normalizeSubmittedOrder(
+          currentQuestion,
+          input.selectedOrder,
+        );
 
         const answeredAt = new Date();
         const scoreAwarded = this.calculateScore(selectedOrder, canonicalOrder);
@@ -763,18 +764,55 @@ export class QuizService {
           throw new NotFoundException('Session not found');
         }
 
+        const submittedAnswer =
+          refreshedSession.answers.find(
+            (answer) =>
+              answer.sessionId === sessionId &&
+              answer.participantId === participant.id &&
+              answer.questionId === currentQuestion.id,
+          ) ?? null;
+
+        const submittedAnswerComparison = submittedAnswer
+          ? {
+              answerId: submittedAnswer.id,
+              participantId: submittedAnswer.participantId,
+              seat: submittedAnswer.participant.seat,
+              selectedOrder: submittedAnswer.selectedOrder,
+              isCorrect: submittedAnswer.isCorrect,
+              scoreAwarded: Number(submittedAnswer.scoreAwarded),
+              answeredAt: submittedAnswer.answeredAt,
+              answeredMs: this.calculateElapsedMs(
+                refreshedSession.startedAt,
+                submittedAnswer.answeredAt,
+              ),
+              isFastest: refreshedSession.answers
+                .filter((answer) => answer.questionId === currentQuestion.id)
+                .sort((left, right) => {
+                  const leftMs = left.answeredAt.getTime();
+                  const rightMs = right.answeredAt.getTime();
+                  if (leftMs !== rightMs) {
+                    return leftMs - rightMs;
+                  }
+
+                  return left.id.localeCompare(right.id);
+                })[0]?.id === submittedAnswer.id,
+            }
+          : null;
+
         return {
           session: this.mapQuizSessionRow(refreshedSession),
           comparison: this.buildQuestionComparison(
             refreshedSession,
             currentQuestion.id,
           ),
+          submittedAnswer: submittedAnswerComparison,
         };
       });
 
       this.quizGateway.emitAnswerSubmitted(sessionId, {
         session: result.session,
         comparison: result.comparison,
+        submittedAnswer: result.submittedAnswer,
       });
       this.quizGateway.emitSessionUpdated(sessionId, {
         session: result.session,
@@ -914,9 +952,13 @@ export class QuizService {
   ): QuizSessionQuestionComparison {
     const resolvedQuestionIndex =
       questionIndex ??
-      session.quiz.questions.findIndex((question) => question.id === questionId);
+      session.quiz.questions.findIndex(
+        (question) => question.id === questionId,
+      );
     const question =
-      resolvedQuestionIndex >= 0 ? session.quiz.questions[resolvedQuestionIndex] : null;
+      resolvedQuestionIndex >= 0
+        ? session.quiz.questions[resolvedQuestionIndex]
+        : null;
     const canonicalOrder = question ? this.getCanonicalOrder(question) : [];
     const answers = session.answers
       .filter((answer) => answer.questionId === questionId)
@@ -944,7 +986,10 @@ export class QuizService {
         isCorrect: answer.isCorrect,
         scoreAwarded: Number(answer.scoreAwarded),
         answeredAt: answer.answeredAt,
-        answeredMs: this.calculateElapsedMs(session.startedAt, answer.answeredAt),
+        answeredMs: this.calculateElapsedMs(
+          session.startedAt,
+          answer.answeredAt,
+        ),
         isFastest: index === 0,
       })),
     };
@@ -967,8 +1012,7 @@ export class QuizService {
         (answer) => answer.isCorrect,
       ).length;
       const fastestAnswers = questions.filter(
-        (question) =>
-          question.firstResponderParticipantId === participant.id,
+        (question) => question.firstResponderParticipantId === participant.id,
       ).length;
 
       return {
@@ -992,32 +1036,55 @@ export class QuizService {
       .filter((word) => word.length > 0);
   }
 
-  private validateSubmittedOrder(
+  private normalizeSubmittedOrder(
+    question: QuizQuestionRow | QuizQuestion,
     selectedOrder: string[],
-    canonicalOrder: string[],
-  ): void {
-    if (selectedOrder.length !== canonicalOrder.length) {
-      throw new BadRequestException(
-        'Selected order must contain the same number of words as the correct answer',
-      );
-    }
+  ): string[] {
+    const trimmedSelectedOrder = selectedOrder.map((word) => word.trim());
+    const canonicalOrder = this.getCanonicalOrder(question);
+    const hiddenOrder = question.options
+      .filter((option) => option.label === 'HIDE')
+      .map((option) => option.word.trim())
+      .filter((word) => word.length > 0);
 
-    for (const word of selectedOrder) {
+    for (const word of trimmedSelectedOrder) {
       if (!word) {
         throw new BadRequestException('Selected order cannot contain blanks');
       }
     }
 
-    const expectedWords = [...canonicalOrder].sort();
-    const submittedWords = [...selectedOrder].sort();
-    if (
-      expectedWords.length !== submittedWords.length ||
-      expectedWords.some((word, index) => word !== submittedWords[index])
-    ) {
-      throw new BadRequestException(
-        'Selected order must use the expected words',
-      );
+    if (trimmedSelectedOrder.length === canonicalOrder.length) {
+      return trimmedSelectedOrder;
     }
+
+    if (trimmedSelectedOrder.length === hiddenOrder.length) {
+      const normalizedOrder: string[] = [];
+      let hiddenIndex = 0;
+
+      for (const option of question.options) {
+        if (option.label === 'EXTRA') {
+          continue;
+        }
+
+        if (option.label === 'SHOW') {
+          normalizedOrder.push(option.word.trim());
+          continue;
+        }
+
+        normalizedOrder.push(trimmedSelectedOrder[hiddenIndex] ?? '');
+        hiddenIndex += 1;
+      }
+
+      if (hiddenIndex !== trimmedSelectedOrder.length) {
+        throw new BadRequestException('Selected order has an invalid shape');
+      }
+
+      return normalizedOrder;
+    }
+
+    throw new BadRequestException(
+      'Selected order must contain either the full phrase or only the hidden words',
+    );
   }
 
   private calculateScore(
@@ -1046,10 +1113,7 @@ export class QuizService {
     return selectedOrder.every((word, index) => word === canonicalOrder[index]);
   }
 
-  private calculateElapsedMs(
-    startedAt: Date | null,
-    answeredAt: Date,
-  ): number {
+  private calculateElapsedMs(startedAt: Date | null, answeredAt: Date): number {
     if (!startedAt) {
       return 0;
     }
@@ -1209,7 +1273,10 @@ export class QuizService {
       }
     }
 
-    if (error instanceof BadRequestException || error instanceof NotFoundException) {
+    if (
+      error instanceof BadRequestException ||
+      error instanceof NotFoundException
+    ) {
       throw error;
     }
 

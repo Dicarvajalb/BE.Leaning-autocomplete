@@ -311,6 +311,9 @@ export class QuizSessionAnswerSubmissionResultModel {
 
   @ApiProperty({ type: () => QuizSessionQuestionComparisonModel })
   comparison!: QuizSessionQuestionComparisonModel;
+
+  @ApiPropertyOptional({ type: () => QuizSessionAnswerComparisonModel, nullable: true })
+  submittedAnswer!: QuizSessionAnswerComparisonModel | null;
 }
 
 export class QuizSessionResultModel {
