@@ -20,13 +20,13 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { OAUTH_SERVICE, OAuthServiceI } from './domain/utilities';
 import appConfig from 'src/config/app.config';
 import authConfig from 'src/config/auth.config';
 import frontendConfig from 'src/config/frontend.config';
 import { AuthenticatedUser } from './domain/entities';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AuthMeResponseModel } from 'src/swagger/swagger.models';
+import { AuthService } from './interfaces/auth.service';
 const ACCESS_TOKEN_COOKIE = 'access_token';
 const OAUTH_STATE_COOKIE = 'oauth_state';
 
@@ -39,8 +39,7 @@ type RequestWithCookies = Request & {
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject(OAUTH_SERVICE)
-    private readonly oauthService: OAuthServiceI,
+    private readonly authService: AuthService,
     @Inject(appConfig.KEY)
     private readonly appConfiguration: ConfigType<typeof appConfig>,
     @Inject(authConfig.KEY)
@@ -103,7 +102,7 @@ export class AuthController {
     @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    //await this.oauthService.logout(req.user.sub);
+    await this.authService.logout(req.user.sub);
     this.clearAccessTokenCookie(res);
   }
 
@@ -122,8 +121,7 @@ export class AuthController {
   @Get('google')
   @ApiFoundResponse({ description: 'Redirects to Google login' })
   async googleAuth(@Res({ passthrough: true }) res: Response): Promise<void> {
-    const { url, state } = await this.oauthService.createAuthRedirectUrl();
-    console.log('🚀 ~ AuthController ~ googleAuth ~ url:', url);
+    const { url, state } = await this.authService.createAuthRedirectUrl();
     this.setOAuthStateCookie(res, state, 10 * 60);
     res.redirect(url);
   }
@@ -143,11 +141,6 @@ export class AuthController {
     }
 
     const oauthState = req.cookies?.[OAUTH_STATE_COOKIE];
-    console.log(
-      '🚀 ~ AuthController ~ googleCallback ~ oauthState:',
-      oauthState,
-    );
-    console.log('🚀 ~ AuthController ~ googleCallback ~ state:', state);
 
     if (!oauthState || oauthState !== state) {
       this.clearOAuthStateCookie(res);
@@ -156,7 +149,7 @@ export class AuthController {
 
     this.clearOAuthStateCookie(res);
 
-    const tokens = await this.oauthService.handleCallback({
+    const tokens = await this.authService.handleCallback({
       code,
     });
 

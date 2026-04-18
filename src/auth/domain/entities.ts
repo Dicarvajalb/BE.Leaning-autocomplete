@@ -19,7 +19,9 @@ export interface LoginResponseDTO {
   access_token: string;
 }
 
-export type OAuthCallbackResult = LoginResponseDTO;
+export type OAuthCallbackResult = {
+  access_token: string;
+};
 
 export interface TokenPayload {
   sub: string;
