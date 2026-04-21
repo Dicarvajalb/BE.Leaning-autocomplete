@@ -1,6 +1,15 @@
-import type { AuthenticatedUser } from '../domain/entities';
 import type { AuthRepositoryPort, TokenServicePort } from '../ports/auth.ports';
 import { AuthApplicationError } from './errors';
+
+type AuthenticatedUser = {
+  sub: string;
+  email: string | null;
+  iss: string;
+  jti?: string;
+  iat?: number;
+  exp?: number;
+  role: 'ADMIN' | 'USER';
+};
 
 export class ValidateApplicationTokenUseCase {
   constructor(

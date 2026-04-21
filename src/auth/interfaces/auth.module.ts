@@ -11,14 +11,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleOAuthGateway } from '../adapters/google-oauth.gateway';
 import { JwtTokenService } from '../adapters/jwt-token.service';
 import { PrismaAuthRepository } from '../adapters/prisma-auth.repository';
-import { CreateGoogleAuthRedirectUseCase } from '../use-cases/create-google-auth-redirect.use-case';
-import { HandleGoogleCallbackUseCase } from '../use-cases/handle-google-callback.use-case';
+import { CreateAuthRedirectUseCase } from '../use-cases/create-auth-redirect.use-case';
+import { ExchangeAuthCodeForAccessTokenUseCase } from '../use-cases/exchange-auth-code-for-access-token.use-case';
 import { IssueTokenForUserUseCase } from '../use-cases/issue-token-for-user.use-case';
 import { LogoutUserUseCase } from '../use-cases/logout-user.use-case';
 import { ValidateApplicationTokenUseCase } from '../use-cases/validate-application-token.use-case';
 import {
-  CREATE_GOOGLE_AUTH_REDIRECT,
-  HANDLE_GOOGLE_CALLBACK,
+  CREATE_AUTH_REDIRECT,
+  EXCHANGE_AUTH_CODE_FOR_ACCESS_TOKEN,
   ISSUE_TOKEN_FOR_USER,
   LOGOUT_USER,
   VALIDATE_APPLICATION_TOKEN,
@@ -112,20 +112,20 @@ import { SystemIdGeneratorAdapter } from '../adapters/system-id-generator.adapte
         new LogoutUserUseCase(authRepository),
     },
     {
-      provide: CREATE_GOOGLE_AUTH_REDIRECT,
+      provide: CREATE_AUTH_REDIRECT,
       inject: [GOOGLE_OAUTH_GATEWAY],
       useFactory: (googleOAuthGateway: GoogleOAuthGateway) =>
-        new CreateGoogleAuthRedirectUseCase(googleOAuthGateway),
+        new CreateAuthRedirectUseCase(googleOAuthGateway),
     },
     {
-      provide: HANDLE_GOOGLE_CALLBACK,
+      provide: EXCHANGE_AUTH_CODE_FOR_ACCESS_TOKEN,
       inject: [AUTH_REPOSITORY, GOOGLE_OAUTH_GATEWAY, ISSUE_TOKEN_FOR_USER],
       useFactory: (
         authRepository: PrismaAuthRepository,
         googleOAuthGateway: GoogleOAuthGateway,
         issueTokenForUserUseCase: IssueTokenForUserUseCase,
       ) =>
-        new HandleGoogleCallbackUseCase(
+        new ExchangeAuthCodeForAccessTokenUseCase(
           authRepository,
           googleOAuthGateway,
           issueTokenForUserUseCase,
@@ -137,22 +137,22 @@ import { SystemIdGeneratorAdapter } from '../adapters/system-id-generator.adapte
         ISSUE_TOKEN_FOR_USER,
         VALIDATE_APPLICATION_TOKEN,
         LOGOUT_USER,
-        CREATE_GOOGLE_AUTH_REDIRECT,
-        HANDLE_GOOGLE_CALLBACK,
+        CREATE_AUTH_REDIRECT,
+        EXCHANGE_AUTH_CODE_FOR_ACCESS_TOKEN,
       ],
       useFactory: (
         issueTokenForUserUseCase: IssueTokenForUserUseCase,
         validateApplicationTokenUseCase: ValidateApplicationTokenUseCase,
         logoutUserUseCase: LogoutUserUseCase,
-        createGoogleAuthRedirectUseCase: CreateGoogleAuthRedirectUseCase,
-        handleGoogleCallbackUseCase: HandleGoogleCallbackUseCase,
+        createAuthRedirectUseCase: CreateAuthRedirectUseCase,
+        exchangeAuthCodeForAccessTokenUseCase: ExchangeAuthCodeForAccessTokenUseCase,
       ) =>
         new AuthService(
           issueTokenForUserUseCase,
           validateApplicationTokenUseCase,
           logoutUserUseCase,
-          createGoogleAuthRedirectUseCase,
-          handleGoogleCallbackUseCase,
+          createAuthRedirectUseCase,
+          exchangeAuthCodeForAccessTokenUseCase,
         ),
     },
     JwtAuthGuard,

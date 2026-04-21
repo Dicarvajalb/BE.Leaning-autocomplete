@@ -23,12 +23,22 @@ import {
 import appConfig from 'src/config/app.config';
 import authConfig from 'src/config/auth.config';
 import frontendConfig from 'src/config/frontend.config';
-import { AuthenticatedUser } from './domain/entities';
+import { UserRole } from './domain/entities';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AuthMeResponseModel } from 'src/swagger/swagger.models';
 import { AuthService } from './interfaces/auth.service';
 const ACCESS_TOKEN_COOKIE = 'access_token';
 const OAUTH_STATE_COOKIE = 'oauth_state';
+
+type AuthenticatedUser = {
+  sub: string;
+  email: string | null;
+  iss: string;
+  jti?: string;
+  iat?: number;
+  exp?: number;
+  role: UserRole;
+};
 
 type RequestWithUser = Request & { user: AuthenticatedUser };
 type RequestWithCookies = Request & {
@@ -149,7 +159,7 @@ export class AuthController {
 
     this.clearOAuthStateCookie(res);
 
-    const tokens = await this.authService.handleCallback({
+    const tokens = await this.authService.exchangeAuthCodeForAccessToken({
       code,
     });
 

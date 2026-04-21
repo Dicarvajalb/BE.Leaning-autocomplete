@@ -29,7 +29,7 @@ import {
   joinQuizSessionSchema,
   submitQuizSessionAnswerSchema,
 } from './domain/schemas';
-import { QuizService } from './quiz.service';
+import { QuizService } from './interfaces/quiz.service';
 import {
   CreateQuizSessionInputModel,
   JoinQuizSessionInputModel,

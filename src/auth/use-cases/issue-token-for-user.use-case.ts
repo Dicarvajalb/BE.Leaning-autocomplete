@@ -1,11 +1,23 @@
 import { AuthApplicationError } from './errors';
-import type { TokenPayload, LoginResponseDTO } from '../domain/entities';
 import type {
   AuthRepositoryPort,
   ClockPort,
   IdGeneratorPort,
   TokenServicePort,
 } from '../ports/auth.ports';
+
+type TokenPayload = {
+  sub: string;
+  email: string | null;
+  iss: string;
+  jti?: string;
+  iat?: number;
+  exp?: number;
+};
+
+type LoginResponse = {
+  access_token: string;
+};
 
 export class IssueTokenForUserUseCase {
   constructor(
@@ -20,7 +32,7 @@ export class IssueTokenForUserUseCase {
   async execute(
     userId: string,
     repository: AuthRepositoryPort = this.authRepository,
-  ): Promise<LoginResponseDTO> {
+  ): Promise<LoginResponse> {
     const user = await repository.findUserById(userId);
 
     if (!user) {

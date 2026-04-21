@@ -2,8 +2,16 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import authConfig from 'src/config/auth.config';
-import type { TokenPayload } from '../domain/entities';
 import type { TokenServicePort } from '../ports/auth.ports';
+
+type TokenPayload = {
+  sub: string;
+  email: string | null;
+  iss: string;
+  jti?: string;
+  iat?: number;
+  exp?: number;
+};
 
 @Injectable()
 export class JwtTokenService implements TokenServicePort {

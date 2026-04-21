@@ -1,24 +1,44 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import type {
-  AuthenticatedUser,
-  LoginResponseDTO,
-  OAuthCallbackArgs,
-  OAuthCallbackResult,
-  OAuthRedirect,
-} from '../domain/entities';
 import { AuthApplicationError } from '../use-cases/errors';
-import { CreateGoogleAuthRedirectUseCase } from '../use-cases/create-google-auth-redirect.use-case';
+import { CreateAuthRedirectUseCase } from '../use-cases/create-auth-redirect.use-case';
 import {
-  CREATE_GOOGLE_AUTH_REDIRECT,
-  HANDLE_GOOGLE_CALLBACK,
+  CREATE_AUTH_REDIRECT,
+  EXCHANGE_AUTH_CODE_FOR_ACCESS_TOKEN,
   ISSUE_TOKEN_FOR_USER,
   LOGOUT_USER,
   VALIDATE_APPLICATION_TOKEN,
 } from '../use-cases/tokens';
-import { HandleGoogleCallbackUseCase } from '../use-cases/handle-google-callback.use-case';
+import { ExchangeAuthCodeForAccessTokenUseCase } from '../use-cases/exchange-auth-code-for-access-token.use-case';
 import { IssueTokenForUserUseCase } from '../use-cases/issue-token-for-user.use-case';
 import { LogoutUserUseCase } from '../use-cases/logout-user.use-case';
 import { ValidateApplicationTokenUseCase } from '../use-cases/validate-application-token.use-case';
+
+type AuthenticatedUser = {
+  sub: string;
+  email: string | null;
+  iss: string;
+  jti?: string;
+  iat?: number;
+  exp?: number;
+  role: 'ADMIN' | 'USER';
+};
+
+type LoginResponse = {
+  access_token: string;
+};
+
+type OAuthRedirect = {
+  url: string;
+  state: string;
+};
+
+type OAuthCallbackArgs = {
+  code: string;
+};
+
+type OAuthCallbackResult = {
+  access_token: string;
+};
 
 @Injectable()
 export class AuthService {
@@ -29,13 +49,13 @@ export class AuthService {
     private readonly validateApplicationTokenUseCase: ValidateApplicationTokenUseCase,
     @Inject(LOGOUT_USER)
     private readonly logoutUserUseCase: LogoutUserUseCase,
-    @Inject(CREATE_GOOGLE_AUTH_REDIRECT)
-    private readonly createGoogleAuthRedirectUseCase: CreateGoogleAuthRedirectUseCase,
-    @Inject(HANDLE_GOOGLE_CALLBACK)
-    private readonly handleGoogleCallbackUseCase: HandleGoogleCallbackUseCase,
+    @Inject(CREATE_AUTH_REDIRECT)
+    private readonly createAuthRedirectUseCase: CreateAuthRedirectUseCase,
+    @Inject(EXCHANGE_AUTH_CODE_FOR_ACCESS_TOKEN)
+    private readonly exchangeAuthCodeForAccessTokenUseCase: ExchangeAuthCodeForAccessTokenUseCase,
   ) {}
 
-  async issueTokenForUser(userId: string): Promise<LoginResponseDTO> {
+  async issueTokenForUser(userId: string): Promise<LoginResponse> {
     return this.mapAuthErrors(() => this.issueTokenForUserUseCase.execute(userId));
   }
 
@@ -50,11 +70,13 @@ export class AuthService {
   }
 
   async createAuthRedirectUrl(): Promise<OAuthRedirect> {
-    return this.createGoogleAuthRedirectUseCase.execute();
+    return this.createAuthRedirectUseCase.execute();
   }
 
-  async handleCallback(args: OAuthCallbackArgs): Promise<OAuthCallbackResult> {
-    return this.handleGoogleCallbackUseCase.execute(args);
+  async exchangeAuthCodeForAccessToken(
+    args: OAuthCallbackArgs,
+  ): Promise<OAuthCallbackResult> {
+    return this.exchangeAuthCodeForAccessTokenUseCase.execute(args);
   }
 
   private async mapAuthErrors<T>(work: () => Promise<T>): Promise<T> {

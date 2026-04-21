@@ -8,6 +8,7 @@ import { AuditAction } from 'src/generated/prisma/enums';
 import { AjvValidationPipe } from 'src/common/pipes/ajv-validation.pipe';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QuizGateway } from './quiz.gateway';
+import type { QuizRepositoryPort } from './ports/quiz.ports';
 import {
   type CreateQuestionInput,
   type CreateQuizInput,
@@ -171,7 +172,7 @@ type QuizSessionGameplayRow = Prisma.QuizSessionGetPayload<
 const QUESTION_OPTION_LABELS: QuestionOptionLabel[] = ['HIDE', 'SHOW', 'EXTRA'];
 
 @Injectable()
-export class QuizService {
+export class PrismaQuizRepository implements QuizRepositoryPort {
   private readonly quizQuestionValidationPipe = new AjvValidationPipe(
     quizQuestionSchema,
   );

@@ -1,0 +1,13 @@
+export const SEARCH_QUIZZES = Symbol('SEARCH_QUIZZES');
+export const GET_QUIZ_DETAIL = Symbol('GET_QUIZ_DETAIL');
+export const CREATE_QUIZ = Symbol('CREATE_QUIZ');
+export const UPDATE_QUIZ = Symbol('UPDATE_QUIZ');
+export const DELETE_QUIZ = Symbol('DELETE_QUIZ');
+export const CREATE_QUESTION = Symbol('CREATE_QUESTION');
+export const UPDATE_QUESTION = Symbol('UPDATE_QUESTION');
+export const DELETE_QUESTION = Symbol('DELETE_QUESTION');
+export const CREATE_QUIZ_SESSION = Symbol('CREATE_QUIZ_SESSION');
+export const JOIN_QUIZ_SESSION = Symbol('JOIN_QUIZ_SESSION');
+export const GET_QUIZ_SESSION = Symbol('GET_QUIZ_SESSION');
+export const SUBMIT_QUIZ_SESSION_ANSWER = Symbol('SUBMIT_QUIZ_SESSION_ANSWER');
+export const GET_QUIZ_SESSION_RESULT = Symbol('GET_QUIZ_SESSION_RESULT');

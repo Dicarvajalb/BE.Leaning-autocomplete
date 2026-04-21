@@ -1,8 +1,15 @@
-import type { OAuthCallbackArgs, OAuthCallbackResult } from '../domain/entities';
 import type { AuthRepositoryPort, GoogleOAuthGatewayPort } from '../ports/auth.ports';
 import { IssueTokenForUserUseCase } from './issue-token-for-user.use-case';
 
-export class HandleGoogleCallbackUseCase {
+type OAuthCallbackArgs = {
+  code: string;
+};
+
+type OAuthCallbackResult = {
+  access_token: string;
+};
+
+export class ExchangeAuthCodeForAccessTokenUseCase {
   constructor(
     private readonly authRepository: AuthRepositoryPort,
     private readonly googleOAuthGateway: GoogleOAuthGatewayPort,

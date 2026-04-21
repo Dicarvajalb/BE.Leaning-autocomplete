@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { AjvValidationPipe } from 'src/common/pipes/ajv-validation.pipe';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { type AuthenticatedUser } from 'src/auth/domain/entities';
+import type { UserRole } from 'src/auth/domain/entities';
 import {
   type CreateQuestionInput,
   type CreateQuizInput,
@@ -34,12 +34,22 @@ import {
   updateQuestionSchema,
   updateQuizSchema,
 } from './domain/schemas';
-import { QuizService } from './quiz.service';
+import { QuizService } from './interfaces/quiz.service';
 import {
   QuizDetailModel,
   QuizQuestionInputModel,
   QuizWriteInputModel,
 } from 'src/swagger/swagger.models';
+
+type AuthenticatedUser = {
+  sub: string;
+  email: string | null;
+  iss: string;
+  jti?: string;
+  iat?: number;
+  exp?: number;
+  role: UserRole;
+};
 
 type RequestWithUser = Request & { user?: AuthenticatedUser };
 

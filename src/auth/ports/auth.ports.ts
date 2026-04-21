@@ -1,10 +1,4 @@
-import type {
-  AuthUserProfile,
-  LoginResponseDTO,
-  OAuthCallbackArgs,
-  OAuthRedirect,
-  TokenPayload,
-} from '../domain/entities';
+import type { UserRole } from '../domain/entities';
 
 export const AUTH_REPOSITORY = Symbol('AUTH_REPOSITORY');
 export const TOKEN_SERVICE = Symbol('TOKEN_SERVICE');
@@ -13,7 +7,11 @@ export const CLOCK = Symbol('CLOCK');
 export const ID_GENERATOR = Symbol('ID_GENERATOR');
 
 export interface AuthRepositoryPort {
-  findUserById(userId: string): Promise<AuthUserProfile | null>;
+  findUserById(userId: string): Promise<{
+    id: string;
+    email: string | null;
+    role: UserRole;
+  } | null>;
   findActiveSession(
     userId: string,
     accessTokenId: string,
@@ -28,17 +26,35 @@ export interface AuthRepositoryPort {
     sub: string;
     email: string | null;
     displayName: string;
-  }): Promise<AuthUserProfile>;
+  }): Promise<{
+    id: string;
+    email: string | null;
+    role: UserRole;
+  }>;
   transaction<T>(work: (repository: AuthRepositoryPort) => Promise<T>): Promise<T>;
 }
 
 export interface TokenServicePort {
-  signAccessToken(payload: TokenPayload): Promise<string>;
-  verifyAccessToken(token: string): Promise<TokenPayload>;
+  signAccessToken(payload: {
+    sub: string;
+    email: string | null;
+    iss: string;
+    jti?: string;
+    iat?: number;
+    exp?: number;
+  }): Promise<string>;
+  verifyAccessToken(token: string): Promise<{
+    sub: string;
+    email: string | null;
+    iss: string;
+    jti?: string;
+    iat?: number;
+    exp?: number;
+  }>;
 }
 
 export interface GoogleOAuthGatewayPort {
-  createAuthRedirectUrl(): Promise<OAuthRedirect>;
+  createAuthRedirectUrl(): Promise<{ url: string; state: string }>;
   resolveProfileFromCode(code: string): Promise<{
     sub: string;
     email: string | null;
@@ -53,6 +69,3 @@ export interface ClockPort {
 export interface IdGeneratorPort {
   generate(): string;
 }
-
-export type AuthTokenResult = LoginResponseDTO;
-export type GoogleCallbackArgs = OAuthCallbackArgs;

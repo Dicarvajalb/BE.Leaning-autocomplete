@@ -1,7 +1,11 @@
-import type { OAuthRedirect } from '../domain/entities';
 import type { GoogleOAuthGatewayPort } from '../ports/auth.ports';
 
-export class CreateGoogleAuthRedirectUseCase {
+type OAuthRedirect = {
+  url: string;
+  state: string;
+};
+
+export class CreateAuthRedirectUseCase {
   constructor(private readonly googleOAuthGateway: GoogleOAuthGatewayPort) {}
 
   async execute(): Promise<OAuthRedirect> {
