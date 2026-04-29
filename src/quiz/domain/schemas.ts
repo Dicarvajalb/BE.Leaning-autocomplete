@@ -3,7 +3,6 @@ import {
   type CreateQuestionInput,
   type CreateQuizInput,
   type CreateQuizSessionInput,
-  type JoinQuizSessionInput,
   type QuizQuestion,
   type QuizQuestionInput,
   type SubmitQuizSessionAnswerInput,
@@ -115,22 +114,6 @@ export const updateQuestionSchema: JSONSchemaType<UpdateQuestionInput> =
   quizQuestionBodySchema;
 
 export const createQuizSessionSchema: JSONSchemaType<CreateQuizSessionInput> = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['mode'],
-  properties: {
-    mode: {
-      type: 'string',
-      enum: ['SOLO', 'TWO_PLAYER'],
-    },
-    participantUserId: {
-      type: 'string',
-      nullable: true,
-    },
-  },
-};
-
-export const joinQuizSessionSchema: JSONSchemaType<JoinQuizSessionInput> = {
   type: 'object',
   additionalProperties: false,
   required: [],

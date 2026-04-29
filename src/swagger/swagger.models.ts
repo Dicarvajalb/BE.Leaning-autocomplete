@@ -15,7 +15,7 @@ import type { UserRole } from 'src/auth/domain/entities';
 export const QUIZ_DIFFICULTIES: QuizDifficulty[] = ['EASY', 'MEDIUM', 'HARD'];
 export const QUESTION_TYPES: QuestionType[] = ['AUTOCOMPLETE_ORDER'];
 export const QUESTION_OPTION_LABELS: QuestionOptionLabel[] = ['HIDE', 'SHOW', 'EXTRA'];
-export const QUIZ_SESSION_MODES: QuizSessionMode[] = ['SOLO', 'TWO_PLAYER'];
+export const QUIZ_SESSION_MODES: QuizSessionMode[] = ['SOLO'];
 export const QUIZ_SESSION_STATUSES: QuizSessionStatus[] = [
   'PENDING',
   'ACTIVE',
@@ -23,11 +23,7 @@ export const QUIZ_SESSION_STATUSES: QuizSessionStatus[] = [
   'CANCELLED',
   'EXPIRED',
 ];
-export const SESSION_PARTICIPANT_SEATS: SessionParticipantSeat[] = [
-  'SOLO',
-  'PLAYER_ONE',
-  'PLAYER_TWO',
-];
+export const SESSION_PARTICIPANT_SEATS: SessionParticipantSeat[] = ['SOLO'];
 
 export class HealthResponseModel {
   @ApiProperty({ example: 'ok' })
@@ -148,12 +144,6 @@ export class QuizSessionDetailModel {
   @ApiProperty({ enum: QUIZ_SESSION_STATUSES })
   status!: QuizSessionStatus;
 
-  @ApiPropertyOptional({ nullable: true })
-  joinCode!: string | null;
-
-  @ApiPropertyOptional({ nullable: true })
-  shareLink!: string | null;
-
   @ApiProperty()
   currentQuestion!: number;
 
@@ -213,14 +203,6 @@ export class QuizQuestionInputModel {
 }
 
 export class CreateQuizSessionInputModel {
-  @ApiProperty({ enum: QUIZ_SESSION_MODES })
-  mode!: QuizSessionMode;
-
-  @ApiPropertyOptional({ nullable: true })
-  participantUserId?: string | null;
-}
-
-export class JoinQuizSessionInputModel {
   @ApiPropertyOptional({ nullable: true })
   participantUserId?: string | null;
 }

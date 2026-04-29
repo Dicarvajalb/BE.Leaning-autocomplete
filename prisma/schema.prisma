@@ -31,7 +31,6 @@ enum QuestionOptionLabel {
 
 enum QuizSessionMode {
   SOLO
-  TWO_PLAYER
 }
 
 enum QuizSessionStatus {
@@ -44,8 +43,6 @@ enum QuizSessionStatus {
 
 enum SessionParticipantSeat {
   SOLO
-  PLAYER_ONE
-  PLAYER_TWO
 }
 
 enum AuditAction {
@@ -138,8 +135,6 @@ model QuizSession {
   quizId          String
   mode            QuizSessionMode
   status          QuizSessionStatus    @default(PENDING)
-  joinCode        String?              @unique
-  shareLink       String?              @unique
   currentQuestion Int                  @default(0)
   startedAt       DateTime?
   completedAt     DateTime?
@@ -152,7 +147,6 @@ model QuizSession {
 
   @@index([quizId])
   @@index([status])
-  @@index([joinCode])
   @@index([createdAt])
 }
 

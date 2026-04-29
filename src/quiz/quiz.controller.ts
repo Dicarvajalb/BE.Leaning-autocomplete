@@ -21,18 +21,15 @@ import {
 import { AjvValidationPipe } from 'src/common/pipes/ajv-validation.pipe';
 import {
   type CreateQuizSessionInput,
-  type JoinQuizSessionInput,
   type SubmitQuizSessionAnswerInput,
 } from './domain/entities';
 import {
   createQuizSessionSchema,
-  joinQuizSessionSchema,
   submitQuizSessionAnswerSchema,
 } from './domain/schemas';
 import { QuizService } from './quiz.service';
 import {
   CreateQuizSessionInputModel,
-  JoinQuizSessionInputModel,
   QuizDetailModel,
   QuizSessionAnswerSubmissionResultModel,
   QuizSessionDetailModel,
@@ -92,20 +89,6 @@ export class QuizController {
   @ApiOkResponse({ type: QuizSessionDetailModel })
   async getSession(@Param('sessionId') sessionId: string) {
     return this.quizService.getQuizSession(sessionId);
-  }
-
-  @Post('quiz-sessions/:joinCode/join')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Join a two-player quiz session' })
-  @ApiParam({ name: 'joinCode', type: String })
-  @ApiBody({ type: JoinQuizSessionInputModel })
-  @ApiOkResponse({ type: QuizSessionDetailModel })
-  async joinSession(
-    @Param('joinCode') joinCode: string,
-    @Body(new AjvValidationPipe(joinQuizSessionSchema))
-    body: JoinQuizSessionInput,
-  ) {
-    return this.quizService.joinQuizSession(joinCode, body ?? {});
   }
 
   @Post('quiz-sessions/:sessionId/answers')

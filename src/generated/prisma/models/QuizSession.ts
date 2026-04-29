@@ -39,8 +39,6 @@ export type QuizSessionMinAggregateOutputType = {
   quizId: string | null
   mode: $Enums.QuizSessionMode | null
   status: $Enums.QuizSessionStatus | null
-  joinCode: string | null
-  shareLink: string | null
   currentQuestion: number | null
   startedAt: Date | null
   completedAt: Date | null
@@ -54,8 +52,6 @@ export type QuizSessionMaxAggregateOutputType = {
   quizId: string | null
   mode: $Enums.QuizSessionMode | null
   status: $Enums.QuizSessionStatus | null
-  joinCode: string | null
-  shareLink: string | null
   currentQuestion: number | null
   startedAt: Date | null
   completedAt: Date | null
@@ -69,8 +65,6 @@ export type QuizSessionCountAggregateOutputType = {
   quizId: number
   mode: number
   status: number
-  joinCode: number
-  shareLink: number
   currentQuestion: number
   startedAt: number
   completedAt: number
@@ -94,8 +88,6 @@ export type QuizSessionMinAggregateInputType = {
   quizId?: true
   mode?: true
   status?: true
-  joinCode?: true
-  shareLink?: true
   currentQuestion?: true
   startedAt?: true
   completedAt?: true
@@ -109,8 +101,6 @@ export type QuizSessionMaxAggregateInputType = {
   quizId?: true
   mode?: true
   status?: true
-  joinCode?: true
-  shareLink?: true
   currentQuestion?: true
   startedAt?: true
   completedAt?: true
@@ -124,8 +114,6 @@ export type QuizSessionCountAggregateInputType = {
   quizId?: true
   mode?: true
   status?: true
-  joinCode?: true
-  shareLink?: true
   currentQuestion?: true
   startedAt?: true
   completedAt?: true
@@ -226,8 +214,6 @@ export type QuizSessionGroupByOutputType = {
   quizId: string
   mode: $Enums.QuizSessionMode
   status: $Enums.QuizSessionStatus
-  joinCode: string | null
-  shareLink: string | null
   currentQuestion: number
   startedAt: Date | null
   completedAt: Date | null
@@ -264,8 +250,6 @@ export type QuizSessionWhereInput = {
   quizId?: Prisma.StringFilter<"QuizSession"> | string
   mode?: Prisma.EnumQuizSessionModeFilter<"QuizSession"> | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFilter<"QuizSession"> | $Enums.QuizSessionStatus
-  joinCode?: Prisma.StringNullableFilter<"QuizSession"> | string | null
-  shareLink?: Prisma.StringNullableFilter<"QuizSession"> | string | null
   currentQuestion?: Prisma.IntFilter<"QuizSession"> | number
   startedAt?: Prisma.DateTimeNullableFilter<"QuizSession"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"QuizSession"> | Date | string | null
@@ -282,8 +266,6 @@ export type QuizSessionOrderByWithRelationInput = {
   quizId?: Prisma.SortOrder
   mode?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  joinCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  shareLink?: Prisma.SortOrderInput | Prisma.SortOrder
   currentQuestion?: Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -297,8 +279,6 @@ export type QuizSessionOrderByWithRelationInput = {
 
 export type QuizSessionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  joinCode?: string
-  shareLink?: string
   AND?: Prisma.QuizSessionWhereInput | Prisma.QuizSessionWhereInput[]
   OR?: Prisma.QuizSessionWhereInput[]
   NOT?: Prisma.QuizSessionWhereInput | Prisma.QuizSessionWhereInput[]
@@ -314,15 +294,13 @@ export type QuizSessionWhereUniqueInput = Prisma.AtLeast<{
   quiz?: Prisma.XOR<Prisma.QuizScalarRelationFilter, Prisma.QuizWhereInput>
   participants?: Prisma.SessionParticipantListRelationFilter
   answers?: Prisma.AnswerListRelationFilter
-}, "id" | "joinCode" | "shareLink">
+}, "id">
 
 export type QuizSessionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   quizId?: Prisma.SortOrder
   mode?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  joinCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  shareLink?: Prisma.SortOrderInput | Prisma.SortOrder
   currentQuestion?: Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -344,8 +322,6 @@ export type QuizSessionScalarWhereWithAggregatesInput = {
   quizId?: Prisma.StringWithAggregatesFilter<"QuizSession"> | string
   mode?: Prisma.EnumQuizSessionModeWithAggregatesFilter<"QuizSession"> | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusWithAggregatesFilter<"QuizSession"> | $Enums.QuizSessionStatus
-  joinCode?: Prisma.StringNullableWithAggregatesFilter<"QuizSession"> | string | null
-  shareLink?: Prisma.StringNullableWithAggregatesFilter<"QuizSession"> | string | null
   currentQuestion?: Prisma.IntWithAggregatesFilter<"QuizSession"> | number
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"QuizSession"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"QuizSession"> | Date | string | null
@@ -358,8 +334,6 @@ export type QuizSessionCreateInput = {
   id?: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -376,8 +350,6 @@ export type QuizSessionUncheckedCreateInput = {
   quizId: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -392,8 +364,6 @@ export type QuizSessionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -410,8 +380,6 @@ export type QuizSessionUncheckedUpdateInput = {
   quizId?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -427,8 +395,6 @@ export type QuizSessionCreateManyInput = {
   quizId: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -441,8 +407,6 @@ export type QuizSessionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -456,8 +420,6 @@ export type QuizSessionUncheckedUpdateManyInput = {
   quizId?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -481,8 +443,6 @@ export type QuizSessionCountOrderByAggregateInput = {
   quizId?: Prisma.SortOrder
   mode?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  joinCode?: Prisma.SortOrder
-  shareLink?: Prisma.SortOrder
   currentQuestion?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -500,8 +460,6 @@ export type QuizSessionMaxOrderByAggregateInput = {
   quizId?: Prisma.SortOrder
   mode?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  joinCode?: Prisma.SortOrder
-  shareLink?: Prisma.SortOrder
   currentQuestion?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -515,8 +473,6 @@ export type QuizSessionMinOrderByAggregateInput = {
   quizId?: Prisma.SortOrder
   mode?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  joinCode?: Prisma.SortOrder
-  shareLink?: Prisma.SortOrder
   currentQuestion?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -616,8 +572,6 @@ export type QuizSessionCreateWithoutQuizInput = {
   id?: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -632,8 +586,6 @@ export type QuizSessionUncheckedCreateWithoutQuizInput = {
   id?: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -678,8 +630,6 @@ export type QuizSessionScalarWhereInput = {
   quizId?: Prisma.StringFilter<"QuizSession"> | string
   mode?: Prisma.EnumQuizSessionModeFilter<"QuizSession"> | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFilter<"QuizSession"> | $Enums.QuizSessionStatus
-  joinCode?: Prisma.StringNullableFilter<"QuizSession"> | string | null
-  shareLink?: Prisma.StringNullableFilter<"QuizSession"> | string | null
   currentQuestion?: Prisma.IntFilter<"QuizSession"> | number
   startedAt?: Prisma.DateTimeNullableFilter<"QuizSession"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"QuizSession"> | Date | string | null
@@ -692,8 +642,6 @@ export type QuizSessionCreateWithoutParticipantsInput = {
   id?: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -709,8 +657,6 @@ export type QuizSessionUncheckedCreateWithoutParticipantsInput = {
   quizId: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -740,8 +686,6 @@ export type QuizSessionUpdateWithoutParticipantsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -757,8 +701,6 @@ export type QuizSessionUncheckedUpdateWithoutParticipantsInput = {
   quizId?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -772,8 +714,6 @@ export type QuizSessionCreateWithoutAnswersInput = {
   id?: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -789,8 +729,6 @@ export type QuizSessionUncheckedCreateWithoutAnswersInput = {
   quizId: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -820,8 +758,6 @@ export type QuizSessionUpdateWithoutAnswersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -837,8 +773,6 @@ export type QuizSessionUncheckedUpdateWithoutAnswersInput = {
   quizId?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -852,8 +786,6 @@ export type QuizSessionCreateManyQuizInput = {
   id?: string
   mode: $Enums.QuizSessionMode
   status?: $Enums.QuizSessionStatus
-  joinCode?: string | null
-  shareLink?: string | null
   currentQuestion?: number
   startedAt?: Date | string | null
   completedAt?: Date | string | null
@@ -866,8 +798,6 @@ export type QuizSessionUpdateWithoutQuizInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -882,8 +812,6 @@ export type QuizSessionUncheckedUpdateWithoutQuizInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -898,8 +826,6 @@ export type QuizSessionUncheckedUpdateManyWithoutQuizInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mode?: Prisma.EnumQuizSessionModeFieldUpdateOperationsInput | $Enums.QuizSessionMode
   status?: Prisma.EnumQuizSessionStatusFieldUpdateOperationsInput | $Enums.QuizSessionStatus
-  joinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shareLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentQuestion?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -953,8 +879,6 @@ export type QuizSessionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   quizId?: boolean
   mode?: boolean
   status?: boolean
-  joinCode?: boolean
-  shareLink?: boolean
   currentQuestion?: boolean
   startedAt?: boolean
   completedAt?: boolean
@@ -972,8 +896,6 @@ export type QuizSessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   quizId?: boolean
   mode?: boolean
   status?: boolean
-  joinCode?: boolean
-  shareLink?: boolean
   currentQuestion?: boolean
   startedAt?: boolean
   completedAt?: boolean
@@ -988,8 +910,6 @@ export type QuizSessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   quizId?: boolean
   mode?: boolean
   status?: boolean
-  joinCode?: boolean
-  shareLink?: boolean
   currentQuestion?: boolean
   startedAt?: boolean
   completedAt?: boolean
@@ -1004,8 +924,6 @@ export type QuizSessionSelectScalar = {
   quizId?: boolean
   mode?: boolean
   status?: boolean
-  joinCode?: boolean
-  shareLink?: boolean
   currentQuestion?: boolean
   startedAt?: boolean
   completedAt?: boolean
@@ -1014,7 +932,7 @@ export type QuizSessionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type QuizSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quizId" | "mode" | "status" | "joinCode" | "shareLink" | "currentQuestion" | "startedAt" | "completedAt" | "expiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["quizSession"]>
+export type QuizSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quizId" | "mode" | "status" | "currentQuestion" | "startedAt" | "completedAt" | "expiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["quizSession"]>
 export type QuizSessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   quiz?: boolean | Prisma.QuizDefaultArgs<ExtArgs>
   participants?: boolean | Prisma.QuizSession$participantsArgs<ExtArgs>
@@ -1040,8 +958,6 @@ export type $QuizSessionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     quizId: string
     mode: $Enums.QuizSessionMode
     status: $Enums.QuizSessionStatus
-    joinCode: string | null
-    shareLink: string | null
     currentQuestion: number
     startedAt: Date | null
     completedAt: Date | null
@@ -1478,8 +1394,6 @@ export interface QuizSessionFieldRefs {
   readonly quizId: Prisma.FieldRef<"QuizSession", 'String'>
   readonly mode: Prisma.FieldRef<"QuizSession", 'QuizSessionMode'>
   readonly status: Prisma.FieldRef<"QuizSession", 'QuizSessionStatus'>
-  readonly joinCode: Prisma.FieldRef<"QuizSession", 'String'>
-  readonly shareLink: Prisma.FieldRef<"QuizSession", 'String'>
   readonly currentQuestion: Prisma.FieldRef<"QuizSession", 'Int'>
   readonly startedAt: Prisma.FieldRef<"QuizSession", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"QuizSession", 'DateTime'>

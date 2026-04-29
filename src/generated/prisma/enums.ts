@@ -43,8 +43,7 @@ export type QuestionOptionLabel = (typeof QuestionOptionLabel)[keyof typeof Ques
 
 
 export const QuizSessionMode = {
-  SOLO: 'SOLO',
-  TWO_PLAYER: 'TWO_PLAYER'
+  SOLO: 'SOLO'
 } as const
 
 export type QuizSessionMode = (typeof QuizSessionMode)[keyof typeof QuizSessionMode]
@@ -62,9 +61,7 @@ export type QuizSessionStatus = (typeof QuizSessionStatus)[keyof typeof QuizSess
 
 
 export const SessionParticipantSeat = {
-  SOLO: 'SOLO',
-  PLAYER_ONE: 'PLAYER_ONE',
-  PLAYER_TWO: 'PLAYER_TWO'
+  SOLO: 'SOLO'
 } as const
 
 export type SessionParticipantSeat = (typeof SessionParticipantSeat)[keyof typeof SessionParticipantSeat]

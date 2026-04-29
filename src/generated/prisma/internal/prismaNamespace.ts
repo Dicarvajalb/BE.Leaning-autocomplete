@@ -1186,8 +1186,6 @@ export const QuizSessionScalarFieldEnum = {
   quizId: 'quizId',
   mode: 'mode',
   status: 'status',
-  joinCode: 'joinCode',
-  shareLink: 'shareLink',
   currentQuestion: 'currentQuestion',
   startedAt: 'startedAt',
   completedAt: 'completedAt',

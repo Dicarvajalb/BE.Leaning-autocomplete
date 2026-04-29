@@ -7,12 +7,10 @@ import { Prisma } from 'src/generated/prisma/client';
 import { AuditAction } from 'src/generated/prisma/enums';
 import { AjvValidationPipe } from 'src/common/pipes/ajv-validation.pipe';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { QuizGateway } from './quiz.gateway';
 import {
   type CreateQuestionInput,
   type CreateQuizInput,
   type CreateQuizSessionInput,
-  type JoinQuizSessionInput,
   type QuizSessionAnswerSubmissionResult,
   type QuizDetail,
   type QuizQuestion,
@@ -25,13 +23,11 @@ import {
   type QuestionOptionLabel,
   type SearchQuizzesInput,
   type SearchQuizzesResult,
-  type SessionParticipant,
   type SubmitQuizSessionAnswerInput,
   type UpdateQuestionInput,
   type UpdateQuizInput,
 } from './domain/entities';
 import { quizQuestionSchema } from './domain/schemas';
-import { randomBytes } from 'node:crypto';
 
 const quizSearchArgs = {
   select: {
@@ -88,8 +84,6 @@ const quizSessionArgs = {
     quizId: true,
     mode: true,
     status: true,
-    joinCode: true,
-    shareLink: true,
     currentQuestion: true,
     startedAt: true,
     completedAt: true,
@@ -178,7 +172,6 @@ export class QuizService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly quizGateway: QuizGateway,
   ) {}
 
   public async searchQuizzes(
@@ -513,123 +506,30 @@ export class QuizService {
     input: CreateQuizSessionInput,
   ): Promise<QuizSessionDetail> {
     await this.ensureQuizIsPlayable(quizId);
-
-    const isSolo = input.mode === 'SOLO';
-
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      const joinCode = isSolo ? null : await this.generateJoinCode();
-      const shareLink = joinCode ? `/quiz-sessions/join/${joinCode}` : null;
-      const now = new Date();
-
-      try {
-        const session = await this.prisma.$transaction(async (tx) => {
-          const created = await tx.quizSession.create({
-            data: {
-              quizId,
-              mode: input.mode,
-              status: isSolo ? 'ACTIVE' : 'PENDING',
-              joinCode,
-              shareLink,
-              currentQuestion: 0,
-              startedAt: isSolo ? now : null,
-              participants: {
-                create: {
-                  userId: input.participantUserId ?? null,
-                  seat: isSolo ? 'SOLO' : 'PLAYER_ONE',
-                  joinedAt: now,
-                },
-              },
+    const now = new Date();
+    const session = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.quizSession.create({
+        data: {
+          quizId,
+          mode: 'SOLO',
+          status: 'ACTIVE',
+          currentQuestion: 0,
+          startedAt: now,
+          participants: {
+            create: {
+              userId: input.participantUserId ?? null,
+              seat: 'SOLO',
+              joinedAt: now,
             },
-            ...quizSessionArgs,
-          });
-
-          return created;
-        });
-
-        this.quizGateway.emitSessionUpdated(session.id, {
-          session: this.mapQuizSessionRow(session),
-        });
-
-        return this.mapQuizSessionRow(session);
-      } catch (error) {
-        if (!this.isJoinCodeCollision(error) || isSolo) {
-          throw this.toBadRequestOrRethrow(
-            error,
-            'Unable to create quiz session',
-          );
-        }
-
-        if (attempt === 4) {
-          throw new BadRequestException(
-            'Unable to generate a unique join code',
-          );
-        }
-      }
-    }
-
-    throw new BadRequestException('Unable to create quiz session');
-  }
-
-  public async joinQuizSession(
-    joinCode: string,
-    input: JoinQuizSessionInput,
-  ): Promise<QuizSessionDetail> {
-    const session = await this.prisma.quizSession.findUnique({
-      where: { joinCode },
-      ...quizSessionArgs,
-    });
-
-    if (!session) {
-      throw new NotFoundException('Session not found');
-    }
-
-    if (session.mode !== 'TWO_PLAYER') {
-      throw new BadRequestException(
-        'Only two-player sessions can be joined by code',
-      );
-    }
-
-    if (
-      session.status === 'COMPLETED' ||
-      session.status === 'CANCELLED' ||
-      session.status === 'EXPIRED'
-    ) {
-      throw new BadRequestException('Session is no longer active');
-    }
-
-    if (session.participants.length >= 2) {
-      throw new BadRequestException('Session already has two participants');
-    }
-
-    const existingSeats = new Set(
-      session.participants.map((item) => item.seat),
-    );
-    if (existingSeats.has('PLAYER_TWO')) {
-      throw new BadRequestException(
-        'Player two has already joined this session',
-      );
-    }
-
-    const updated = await this.prisma.quizSession.update({
-      where: { id: session.id },
-      data: {
-        status: 'ACTIVE',
-        startedAt: session.startedAt ?? new Date(),
-        participants: {
-          create: {
-            userId: input.participantUserId ?? null,
-            seat: 'PLAYER_TWO',
           },
         },
-      },
-      ...quizSessionArgs,
+        ...quizSessionArgs,
+      });
+
+      return created;
     });
 
-    this.quizGateway.emitSessionUpdated(updated.id, {
-      session: this.mapQuizSessionRow(updated),
-    });
-
-    return this.mapQuizSessionRow(updated);
+    return this.mapQuizSessionRow(session);
   }
 
   public async getQuizSession(sessionId: string): Promise<QuizSessionDetail> {
@@ -776,7 +676,7 @@ export class QuizService {
           ? {
               answerId: submittedAnswer.id,
               participantId: submittedAnswer.participantId,
-              seat: submittedAnswer.participant.seat,
+              seat: 'SOLO' as const,
               selectedOrder: submittedAnswer.selectedOrder,
               isCorrect: submittedAnswer.isCorrect,
               scoreAwarded: Number(submittedAnswer.scoreAwarded),
@@ -808,22 +708,6 @@ export class QuizService {
           submittedAnswer: submittedAnswerComparison,
         };
       });
-
-      this.quizGateway.emitAnswerSubmitted(sessionId, {
-        session: result.session,
-        comparison: result.comparison,
-        submittedAnswer: result.submittedAnswer,
-      });
-      this.quizGateway.emitSessionUpdated(sessionId, {
-        session: result.session,
-      });
-
-      if (result.session.status === 'COMPLETED') {
-        const resultPayload = await this.getQuizSessionResult(sessionId);
-        this.quizGateway.emitResultAvailable(sessionId, {
-          result: resultPayload,
-        });
-      }
 
       return result;
     } catch (error) {
@@ -922,24 +806,22 @@ export class QuizService {
   }
 
   private mapQuizSessionRow(row: QuizSessionRow): QuizSessionDetail {
-    return {
-      id: row.id,
-      quizId: row.quizId,
-      mode: row.mode,
-      status: row.status,
-      joinCode: row.joinCode,
-      shareLink: row.shareLink,
-      currentQuestion: row.currentQuestion,
-      startedAt: row.startedAt,
-      completedAt: row.completedAt,
-      expiresAt: row.expiresAt,
-      participants: row.participants.map((participant) => ({
-        id: participant.id,
-        userId: participant.userId,
-        seat: participant.seat,
-        joinedAt: participant.joinedAt,
-        lastAnsweredAt: participant.lastAnsweredAt,
-        lastAnswerMs: participant.lastAnswerMs,
+      return {
+        id: row.id,
+        quizId: row.quizId,
+      mode: 'SOLO',
+        status: row.status,
+        currentQuestion: row.currentQuestion,
+        startedAt: row.startedAt,
+        completedAt: row.completedAt,
+        expiresAt: row.expiresAt,
+        participants: row.participants.map((participant) => ({
+          id: participant.id,
+          userId: participant.userId,
+        seat: 'SOLO' as const,
+          joinedAt: participant.joinedAt,
+          lastAnsweredAt: participant.lastAnsweredAt,
+          lastAnswerMs: participant.lastAnswerMs,
       })),
       quiz: this.mapQuizDetailRow(row.quiz),
     };
@@ -981,7 +863,7 @@ export class QuizService {
       answers: answers.map((answer, index) => ({
         answerId: answer.id,
         participantId: answer.participantId,
-        seat: answer.participant.seat,
+        seat: 'SOLO' as const,
         selectedOrder: answer.selectedOrder,
         isCorrect: answer.isCorrect,
         scoreAwarded: Number(answer.scoreAwarded),
@@ -1018,7 +900,7 @@ export class QuizService {
       return {
         participantId: participant.id,
         userId: participant.userId,
-        seat: participant.seat,
+        seat: 'SOLO' as const,
         totalScore: this.roundToOneDecimal(totalScore),
         answeredQuestions,
         correctAnswers,
@@ -1176,44 +1058,6 @@ export class QuizService {
         metadata: args.metadata ?? undefined,
       },
     });
-  }
-
-  private async generateJoinCode(): Promise<string> {
-    for (let attempt = 0; attempt < 8; attempt += 1) {
-      const code = randomBytes(4).toString('hex').toUpperCase();
-      const existing = await this.prisma.quizSession.findUnique({
-        where: { joinCode: code },
-        select: { id: true },
-      });
-
-      if (!existing) {
-        return code;
-      }
-    }
-
-    throw new BadRequestException('Unable to generate a unique join code');
-  }
-
-  private isJoinCodeCollision(error: unknown): boolean {
-    if (typeof error !== 'object' || error === null) {
-      return false;
-    }
-
-    const candidate = error as {
-      code?: string;
-      meta?: { target?: unknown };
-    };
-
-    if (candidate.code !== 'P2002') {
-      return false;
-    }
-
-    const target = candidate.meta?.target;
-    if (!Array.isArray(target)) {
-      return false;
-    }
-
-    return target.includes('joinCode') || target.includes('shareLink');
   }
 
   private validateQuizQuestionModel(question: QuizQuestion): string | null {

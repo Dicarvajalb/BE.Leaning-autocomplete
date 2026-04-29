@@ -4,7 +4,7 @@ export type QuestionType = 'AUTOCOMPLETE_ORDER';
 
 export type QuestionOptionLabel = 'HIDE' | 'SHOW' | 'EXTRA';
 
-export type QuizSessionMode = 'SOLO' | 'TWO_PLAYER';
+export type QuizSessionMode = 'SOLO';
 
 export type QuizSessionStatus =
   | 'PENDING'
@@ -13,7 +13,7 @@ export type QuizSessionStatus =
   | 'CANCELLED'
   | 'EXPIRED';
 
-export type SessionParticipantSeat = 'SOLO' | 'PLAYER_ONE' | 'PLAYER_TWO';
+export type SessionParticipantSeat = 'SOLO';
 
 export interface QuizSearchItem {
   id: string;
@@ -65,8 +65,6 @@ export interface QuizSessionDetail {
   quizId: string;
   mode: QuizSessionMode;
   status: QuizSessionStatus;
-  joinCode: string | null;
-  shareLink: string | null;
   currentQuestion: number;
   startedAt: Date | null;
   completedAt: Date | null;
@@ -76,11 +74,6 @@ export interface QuizSessionDetail {
 }
 
 export interface CreateQuizSessionInput {
-  mode: QuizSessionMode;
-  participantUserId?: string | null;
-}
-
-export interface JoinQuizSessionInput {
   participantUserId?: string | null;
 }
 
