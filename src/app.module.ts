@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/interfaces/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from './auth/interfaces/guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { QuizModule } from './quiz/quiz.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';

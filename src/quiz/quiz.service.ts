@@ -165,14 +165,12 @@ type QuizSessionGameplayRow = Prisma.QuizSessionGetPayload<
 const QUESTION_OPTION_LABELS: QuestionOptionLabel[] = ['HIDE', 'SHOW', 'EXTRA'];
 
 @Injectable()
-export class QuizService {
+export class PrismaQuizRepository implements QuizRepositoryPort {
   private readonly quizQuestionValidationPipe = new AjvValidationPipe(
     quizQuestionSchema,
   );
 
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   public async searchQuizzes(
     input: SearchQuizzesInput,
@@ -685,17 +683,18 @@ export class QuizService {
                 refreshedSession.startedAt,
                 submittedAnswer.answeredAt,
               ),
-              isFastest: refreshedSession.answers
-                .filter((answer) => answer.questionId === currentQuestion.id)
-                .sort((left, right) => {
-                  const leftMs = left.answeredAt.getTime();
-                  const rightMs = right.answeredAt.getTime();
-                  if (leftMs !== rightMs) {
-                    return leftMs - rightMs;
-                  }
+              isFastest:
+                refreshedSession.answers
+                  .filter((answer) => answer.questionId === currentQuestion.id)
+                  .sort((left, right) => {
+                    const leftMs = left.answeredAt.getTime();
+                    const rightMs = right.answeredAt.getTime();
+                    if (leftMs !== rightMs) {
+                      return leftMs - rightMs;
+                    }
 
-                  return left.id.localeCompare(right.id);
-                })[0]?.id === submittedAnswer.id,
+                    return left.id.localeCompare(right.id);
+                  })[0]?.id === submittedAnswer.id,
             }
           : null;
 
@@ -806,22 +805,22 @@ export class QuizService {
   }
 
   private mapQuizSessionRow(row: QuizSessionRow): QuizSessionDetail {
-      return {
-        id: row.id,
-        quizId: row.quizId,
+    return {
+      id: row.id,
+      quizId: row.quizId,
       mode: 'SOLO',
-        status: row.status,
-        currentQuestion: row.currentQuestion,
-        startedAt: row.startedAt,
-        completedAt: row.completedAt,
-        expiresAt: row.expiresAt,
-        participants: row.participants.map((participant) => ({
-          id: participant.id,
-          userId: participant.userId,
+      status: row.status,
+      currentQuestion: row.currentQuestion,
+      startedAt: row.startedAt,
+      completedAt: row.completedAt,
+      expiresAt: row.expiresAt,
+      participants: row.participants.map((participant) => ({
+        id: participant.id,
+        userId: participant.userId,
         seat: 'SOLO' as const,
-          joinedAt: participant.joinedAt,
-          lastAnsweredAt: participant.lastAnsweredAt,
-          lastAnswerMs: participant.lastAnswerMs,
+        joinedAt: participant.joinedAt,
+        lastAnsweredAt: participant.lastAnsweredAt,
+        lastAnswerMs: participant.lastAnswerMs,
       })),
       quiz: this.mapQuizDetailRow(row.quiz),
     };
